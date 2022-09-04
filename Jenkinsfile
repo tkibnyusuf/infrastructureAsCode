@@ -19,8 +19,6 @@ pipeline {
            }
            steps {
               script {
-                  sh "export AWS_PROFILE=yusuf"
-                  sh "export AWS_DEFAULT_PROFILE=yusuf"
                   sh "terraform init"
                   sh "terraform validate"
                   sh "terraform plan"
