@@ -16,8 +16,8 @@ pipeline {
            environment {
              AWS_ACCESS_KEY_ID = credentials('aws_access_key_id')
              AWS_SECRET_ACCESS_KEY = credentials('aws_secret_access_key')
-             export AWS_PROFILE=yusuf
-             export AWS_DEFAULT_PROFILE=yusuf
+             export AWS_PROFILE = yusuf
+             export AWS_DEFAULT_PROFILE = yusuf
            }
            steps {
               script {
