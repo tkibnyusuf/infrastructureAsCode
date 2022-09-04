@@ -22,7 +22,7 @@ pipeline {
                   sh "terraform init"
                   sh "terraform validate"
                   sh "terraform plan"
-                  sh " terraform approve --auto-approve"
+                  sh " terraform apply --auto-approve"
             }
         }
                
