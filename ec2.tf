@@ -108,7 +108,7 @@ resource "null_resource" "name" {
   # copy the password file for your docker hub account
   # from your computer to the ec2 instance 
   provisioner "file" {
-    source      = "~/Downloads/docker_password.txt"
+    source      = "docker_password.txt"
     destination = "/home/ec2-user/docker_password.txt"
   }
 
