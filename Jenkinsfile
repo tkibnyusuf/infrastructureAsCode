@@ -1,9 +1,6 @@
 pipeline {
     agent any
-    environment {
-        AWS_ACCOUNT_ID="775012328020"
-        AWS_DEFAULT_REGION="us-east-1"     
-    }
+
     stages {
         stage('Git checkout') {
             steps {
@@ -11,21 +8,32 @@ pipeline {
             }
         }
         
-        stage('provision server') {
-           environment {
-             AWS_ACCESS_KEY_ID = credentials('aws_access_key_id')
-             AWS_SECRET_ACCESS_KEY = credentials('aws_secret_access_key')
-           }
-           steps {
-              script {
-                  sh "terraform init"
-                  sh "terraform validate"
-                  sh "terraform plan"
-                  sh " terraform destroy --auto-approve"
+        stage('Build with maven') {
+            steps {
+                sh 'cd SampleWebApp && mvn clean install'
             }
         }
-               
-     }
-    }
-    
-}
+        
+             stage('Test') {
+            steps {
+                sh 'cd SampleWebApp && mvn test'
+            }
+        
+            }
+        stage('Code Qualty Scan') {
+
+           steps {
+                  withSonarQubeEnv('sonar-server') {
+             sh "mvn -f SampleWebApp/pom.xml sonar:sonar"      
+               }
+            }
+       }
+        stage('Quality Gate') {
+          steps {
+                 waitForQualityGate abortPipeline: true
+              }
+        }
+            
+        }
+}  
+ 
