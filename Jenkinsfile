@@ -1,54 +1,31 @@
 pipeline {
     agent any
-
+    environment {
+        AWS_ACCOUNT_ID="775012328020"
+        AWS_DEFAULT_REGION="us-east-1"     
+    }
     stages {
         stage('Git checkout') {
             steps {
-                git 'https://github.com/tkibnyusuf/sonarqube-nexusRepo.git'
+                git 'https://github.com/tkibnyusuf/infrastructureAsCode.git'
             }
         }
         
-        stage('Build with maven') {
-            steps {
-                sh 'cd SampleWebApp && mvn clean install'
-            }
-        }
-        
-             stage('Test') {
-            steps {
-                sh 'cd SampleWebApp && mvn test'
-            }
-        
-            }
-        stage('Code Qualty Scan') {
-
+        stage('provision server') {
+           environment {
+             AWS_ACCESS_KEY_ID = credentials('aws_access_key_id')
+             AWS_SECRET_ACCESS_KEY = credentials('aws_secret_access_key')
+           }
            steps {
-                  withSonarQubeEnv('sonar-server') {
-             sh "mvn -f SampleWebApp/pom.xml sonar:sonar"      
-               }
+              script {
+                  sh "terraform init"
+                  sh "terraform validate"
+                  sh "terraform plan"
+                  sh " terraform destroy --auto-approve"
             }
-       }
-        stage('Quality Gate') {
-          steps {
-                 waitForQualityGate abortPipeline: true
-              }
         }
-        stage('push to nexus') {
-            steps {
-                nexusArtifactUploader artifacts: [[artifactId: 'SampleWebApp', classifier: '', file: 'SampleWebApp/target/SampleWebApp.war', type: 'war']], credentialsId: 'nexus', groupId: 'SampleWebApp', nexusUrl: '34.204.173.152:8081', nexusVersion: 'nexus3', protocol: 'http', repository: 'maven-snapshots', version: '1.0-SNAPSHOT'
-                
-            }
-            
-        }
-        
-        stage('deploy to tomcat') {
-          steps {
-              deploy adapters: [tomcat9(credentialsId: 'tomcat', path: '', url: 'http://54.83.78.240:8080/')], contextPath: 'myapp', war: '**/*.war'
-              
-          }
-            
-        }
-            
-        }
-}  
- 
+               
+     }
+    }
+    
+}
