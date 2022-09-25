@@ -4,7 +4,7 @@ pipeline {
     stages {
         stage('Git checkout') {
             steps {
-                git 'https://github.com/tkibnyusuf/infrastructureAsCode.git'
+                git 'https://github.com/tkibnyusuf/sonarqube-nexusRepo.git'
             }
         }
         
